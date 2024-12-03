@@ -174,8 +174,8 @@ class Explosion:
         #爆発経過時間lifeを１減算
         self.life -= 1
         #爆発経過時間lifeが正なら，Surfaceリストを交互に切り替えて爆発を演出
-        if self.life >= 0:
-            screen.blit(self.imgs[self.life%2], self.rct)
+        if self.life > 0:
+            screen.blit(self.imgs[self.life%2], self.rct) #lifeが奇数なら0番目，偶数なら1番目のSurfaceをblit
   
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -236,8 +236,7 @@ def main():
                             explosions.append(explosion) #リストに追加
                             #lifeが0より大きいExplosionインスタンスだけのリストにする
                             explosions = [explosion for explosion in explosions if explosion.life > 0]
-                            #updateメソッドを呼び出して爆発を描画
-                            explosion.update(screen)
+                            
 
         if beams:
             beams = [beam for beam in beams if beam is not None]
@@ -256,6 +255,9 @@ def main():
         # beam.update(screen)   
         bombs = [bomb for bomb in bombs if bomb is not None] 
 
+        #もしExplosionがあるならupdateメソッドを呼び出して爆発を描画
+        for explosion in explosions:
+            explosion.update(screen)
 
         for bomb in bombs:
             bomb.update(screen)
