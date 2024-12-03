@@ -110,21 +110,21 @@ class Beam:
         self.vx, self.vy = +5, 0
 
         #Birdのdireにアクセスし，こうかとんが向いている方向をvx, vyに代入
-        if bird.dire == (+5, 0):
+        if bird.dire == (+5, 0): #右
             self.vx, self.vy = +5, 0
-        elif bird.dire == (+5, -5):
+        elif bird.dire == (+5, -5): #右上
             self.vx, self.vy = +5, -5
-        elif bird.dire == (0, -5):
+        elif bird.dire == (0, -5): #上
             self.vx, self.vy = 0, -5
-        elif bird.dire == (-5, -5):
+        elif bird.dire == (-5, -5): #左上
             self.vx, self.vy = -5, -5
-        elif bird.dire == (-5, 0):
+        elif bird.dire == (-5, 0): #左
             self.vx, self.vy = -5, 0
-        elif bird.dire == (-5, +5):
+        elif bird.dire == (-5, +5): #左下
             self.vx, self.vy = -5, +5
-        elif bird.dire == (0, +5):
+        elif bird.dire == (0, +5): #下
             self.vx, self.vy = 0, +5
-        elif bird.dire == (+5, +5):
+        elif bird.dire == (+5, +5): #右下
             self.vx, self.vy = +5, +5
 
         #math.atan2(-vy, vx)で，直交座標(x, -y)から極座標の角度Θに変換
