@@ -171,6 +171,9 @@ def main():
                 # ビームが爆弾に当たったら，爆弾をNoneにして消す
                 beam = None
                 bomb = None
+                bird.change_img(6, screen)
+                pg.display.update()
+
             
         
 
