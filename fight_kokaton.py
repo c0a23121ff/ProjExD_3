@@ -157,6 +157,26 @@ class Score:
         self.img = self.fonto.render(f"Score:{self.score} ", 0, (0, 0, 255))
         screen.blit(self.img, self.rct)
 
+class Explosion:
+    """
+    爆発に関するクラス
+    """
+    def __init__(self, xy: tuple[int, int]):
+        #元のexplosion.gifと上下左右にflipしたものの2つのSurfaceをリストに格納
+        self.imgs = [pg.image.load("fig/explosion.gif"), pg.transform.flip(pg.image.load("fig/explosion.gif"), True, False)]
+        #爆発した爆弾のrct.centerに座標を設定
+        self.rct = self.imgs[0].get_rect()
+        self.rct.center = xy
+        #表示時間（爆発時間）lifeを設定
+        self.life = 10
+
+    def update(self, screen: pg.Surface):
+        #爆発経過時間lifeを１減算
+        self.life -= 1
+        #爆発経過時間lifeが正なら，Surfaceリストを交互に切り替えて爆発を演出
+        if self.life >= 0:
+            screen.blit(self.imgs[self.life%2], self.rct)
+  
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -169,6 +189,9 @@ def main():
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
 
     beams = []
+
+    #Explosionインスタンス用の空リストを作る
+    explosions = []
 
     clock = pg.time.Clock()
     tmr = 0
@@ -207,7 +230,15 @@ def main():
                             pg.display.update()
                             
                             score.score += 1
-                            #　ビームが爆弾に当たったら，ビームをリストから削除
+                            
+                            #bombとbeamが衝突したらExplosionインスタンスを生成，リストにappend
+                            explosion = Explosion(bomb.rct.center) #爆発インスタンスを生成
+                            explosions.append(explosion) #リストに追加
+                            #lifeが0より大きいExplosionインスタンスだけのリストにする
+                            explosions = [explosion for explosion in explosions if explosion.life > 0]
+                            #updateメソッドを呼び出して爆発を描画
+                            explosion.update(screen)
+
         if beams:
             beams = [beam for beam in beams if beam is not None]
         if beam is not None:
@@ -216,6 +247,10 @@ def main():
                 if not check_bound(beam.rct)[0]:
                     beams.remove(beam)
             
+        #lifeが0より大きいExplosionインスタンスだけのリストにする
+        explosions = [explosion for explosion in explosions if explosion.life > 0]
+        
+        
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         # beam.update(screen)   
