@@ -1,3 +1,4 @@
+import math
 import os
 import random
 import sys
@@ -39,6 +40,7 @@ class Bird:
     }
     img0 = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     img = pg.transform.flip(img0, True, False)  # デフォルトのこうかとん（右向き）
+    
     imgs = {  # 0度から反時計回りに定義
         (+5, 0): img,  # 右
         (+5, -5): pg.transform.rotozoom(img, 45, 0.9),  # 右上
@@ -58,6 +60,8 @@ class Bird:
         self.img = __class__.imgs[(+5, 0)]
         self.rct: pg.Rect = self.img.get_rect()
         self.rct.center = xy
+        #：こうかとんのデフォルトの向きを表すタプルself.dire=(+5,0)を定義
+        self.dire = (+5, 0)
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -85,6 +89,9 @@ class Bird:
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.img = __class__.imgs[tuple(sum_mv)]
         screen.blit(self.img, self.rct)
+        #合計移動量sum_mvが[0,0]でない時，self.direをsum_mvの値で更新
+        if sum_mv != [0, 0]:
+            self.dire = tuple(sum_mv)
 
 
 class Beam:
@@ -101,6 +108,41 @@ class Beam:
         self.rct.centery = bird.rct.centery # こうかとんの中心縦座標
         self.rct.left = bird.rct.right # こうかとんの右座標
         self.vx, self.vy = +5, 0
+
+        #Birdのdireにアクセスし，こうかとんが向いている方向をvx, vyに代入
+        if bird.dire == (+5, 0):
+            self.vx, self.vy = +5, 0
+        elif bird.dire == (+5, -5):
+            self.vx, self.vy = +5, -5
+        elif bird.dire == (0, -5):
+            self.vx, self.vy = 0, -5
+        elif bird.dire == (-5, -5):
+            self.vx, self.vy = -5, -5
+        elif bird.dire == (-5, 0):
+            self.vx, self.vy = -5, 0
+        elif bird.dire == (-5, +5):
+            self.vx, self.vy = -5, +5
+        elif bird.dire == (0, +5):
+            self.vx, self.vy = 0, +5
+        elif bird.dire == (+5, +5):
+            self.vx, self.vy = +5, +5
+
+        #math.atan2(-vy, vx)で，直交座標(x, -y)から極座標の角度Θに変換
+        theta = math.atan2(-self.vy, self.vx)
+        #math.degrees(theta)で，ラジアンを度に変換
+        self.img = pg.transform.rotozoom(self.img, math.degrees(theta), 1)
+        #rotozoomで回転
+        self.rct = self.img.get_rect()
+        self.rct.centery = bird.rct.centery
+        self.rct.left = bird.rct.right
+
+        #こうかとんのrctのwidthとheightおよび向いている方向を考慮した初期配置
+        #ビームの中心横座標＝こうかとんの中心横座標＋こうかとんの横幅ビームの横速度÷５
+        #ビームの中心縦座標＝こうかとんの中心縦座標＋こうかとんの高さビームの縦速度÷５
+        self.rct.centerx = bird.rct.centerx + bird.rct.width*self.vx//5
+        self.rct.centery = bird.rct.centery + bird.rct.height*self.vy//5
+        
+
 
     def update(self, screen: pg.Surface):
         """
